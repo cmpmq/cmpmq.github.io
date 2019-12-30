@@ -5,16 +5,15 @@ function toPercentage (sum, total){
 	return (Math.round(sum / total * 10000)/100 + "%")
 }
 
-// object, local storage???
-const task = [
+let task = [
 	{
 		name: 'Chinese articles',
-		sum: 3,
+		sum: 5,
 		total: 222,
 		percentage: 0,
 		isCompleted: false,
-		date: [],
-		delta: [1,2],
+		date: [,"Sat Dec 27 2019","Sun Dec 28 2019"],
+		delta: [1,2,2],
 		daverage: 0,
 		dcurrent: 0
 	},
@@ -25,7 +24,7 @@ const task = [
 		percentage: 0,
 		isCompleted: false,
 		date: [],
-		delta: [10,1],
+		delta: [11],
 		daverage: 0,
 		dcurrent: 0
 	},
@@ -42,242 +41,187 @@ const task = [
 	}
 ]
 
-// getelementbyid
-// console.log(document.getElementById('tasks'))
+let taskStr = JSON.stringify(task)
+// read from localStorage -> task
+if(!localStorage){		// localStorage is empty; write into localStorage
+	localStorage.task = taskStr		// write in
+} else {
+	// console.log('read from local storage')
+	task = JSON.parse(localStorage.task)		// read from localStorage
+	console.log(localStorage.task)
+}
 
-// create element in html
+function populateStorage(){
+	taskStr = JSON.stringify(task)		// stringfy
+	localStorage.task = taskStr			// write in
+	// console.log(localStorage.task)
+}
+
 function createTask(){
-	var newDiv = document.createElement('div')
-	newDiv.className = "task-item"
-	// var newDivText = document.createTextNode('New Task')
+	let newDiv = document.createElement('div')
+	newDiv.className = "task"
+	// let newDivText = document.createTextNode('New Task')
 	// newDiv.appendChild(newDivText)
-	var taskList = document.getElementById('tasks')		// location
+	let taskList = document.getElementById('main-task')		// location, last child of maindiv
 	taskList.appendChild(newDiv)		// add child
 	
-	var newSpan = document.createElement('span')
+	let newSpan = document.createElement('span')
 	newSpan.className = "task-name"
-	var newSpanText = document.createTextNode('New Task')
+	let newSpanText = document.createTextNode('New Task')
 	newSpan.appendChild(newSpanText)
 	newDiv.appendChild(newSpan)
 	
-	// input delta
-	var newInputPlus = document.createElement('input')
-	newInputPlus.type = 'button'
-	newInputPlus.value = '新进度'
-	newInputPlus.className = 'task-progress-button'
+	
+	let newInput = document.createElement('input')
+	newInput.type = 'button'
+	newInput.value = '新进度'
+	newInput.className = 'task-delta'
 	// newInputPlus.onclick = 'addProgress()'		// onclick is not working; addEventListen
-	newDiv.appendChild(newInputPlus)
+	newDiv.appendChild(newInput)
 	
-	var newInputSum = document.createElement('input')
-	newInputSum.type = 'button'
-	newInputSum.value = '总进度'
-	newInputSum.className = 'task-overall-button'
-	newDiv.appendChild(newInputSum)
+	newInput = document.createElement('input')
+	newInput.type = 'button'
+	newInput.value = '当前进度'
+	newInput.className = 'task-sum'
+	newDiv.appendChild(newInput)
 	
-	var newInputDetail = document.createElement('input')
-	newInputDetail.type = 'button'
-	newInputDetail.value = '···'
-	newInputDetail.className = 'task-detail'
-	newDiv.appendChild(newInputDetail)
+	newInput = document.createElement('input')
+	newInput.type = 'button'
+	newInput.value = '···'
+	newInput.className = 'task-detail'
+	newDiv.appendChild(newInput)
 	
-	var newlist = document.createElement('ul')
-	newDiv.appendChild(newlist)
 	
-	var newlipro = document.createElement('li')
-	newlipro.className = "task-progress"
-	var newliproText = document.createTextNode('sum / total; Current Percentage')
-	newlipro.appendChild(newliproText)
-	newDiv.appendChild(newlipro)
+	let newul = document.createElement('ul')		// unordered list
+	newDiv.appendChild(newul)
 	
-	var newliday = document.createElement('li')
-	newliday.className = "task-day"
-	var newlidayText = document.createTextNode('xd 平均; yd 当前')
-	newliday.appendChild(newlidayText)
-	newDiv.appendChild(newliday)
+	let newli = document.createElement('li')
+	newli.className = "task-progress"
+	let newliText = document.createTextNode('sum / total; Current Percentage')
+	newli.appendChild(newliText)
+	newul.appendChild(newli)
+	
+	newli = document.createElement('li')
+	newli.className = "task-day"
+	newliText = document.createTextNode('xd 平均; yd 当前')
+	newli.appendChild(newliText)
+	newul.appendChild(newli)
+	
+	// console.log(newDiv)
 }
 
 function TaskWrite(i){
 	// getelementbyclassname
-	// ul gets a [htmlcollection] - is an array
-	var taskNames = document.getElementsByClassName('task-name')
-	var progresses = document.getElementsByClassName('task-progress')
-	var taskDays = document.getElementsByClassName('task-day')
-	 // console.log(taskNames)
-	// console.log(taskNames[1])
-	// taskNames[0].textContent = task[0].name
+	// ul gets a [html collection] - is an array
+	let taskNames = document.getElementsByClassName('task-name')
+	let progresses = document.getElementsByClassName('task-progress')
+	let taskDays = document.getElementsByClassName('task-day')
 	
-	// objects of arrays	// overwrite HTML
+	// objects of arrays && overwrite HTML
 	taskNames[i].textContent = task[i].name
 	task[i].percentage = toPercentage(task[i].sum, task[i].total)
 	progresses[i].textContent = `${task[i].sum} / ${task[i].total}; ${task[i].percentage}`
-	let days = task[i].delta.length
-	let aspeed = (task[i].sum - task[i].delta[0]) / (days - 1)
+	let day = task[i].delta.length
+	let aspeed = (task[i].sum - task[i].delta[0]) / (day - 1)
 	task[i].daverage = Math.round((task[i].total - task[i].sum) / aspeed)
 	
-	let cspeed = task[i].delta[days - 1]
+	let cspeed = task[i].delta[day - 1]
 	task[i].dcurrent = Math.round((task[i].total - task[i].sum) / cspeed)
 	taskDays[i].textContent = task[i].daverage + " 平均; " + task[i].dcurrent + " 当前"
 }
 
-// let ltask = task.length // get object array length
-// console.log(task[1].name)
-// process and print data
-// let addbool = [true]
-for (var i = 0; i < task.length; i++){
-	createTask()
-	TaskWrite(i)
-	// addbool[i] = true
+function buttonEvent(i){
+	let day = task[i].delta.length
+	let todayDate = new Date().toDateString()
+	
+	document.getElementsByClassName('task-delta')[i].addEventListener('click', function(){
+		day = task[i].delta.length
+		todayDate = new Date().toDateString()
+		
+		let addDelta = prompt("输入任务 " + task[i].name + " 的新进度")
+		// console.log(typeof addDelta)			// string
+		let numDelta = parseInt(addDelta, 10)		// char into ints
+		// console.log(typeof numAdded)			// number
+
+		if(addDelta != null && addDelta != ""){		// input not empty
+			if(todayDate == task[i].date[day - 1]){	// same day
+				task[i].delta[day - 1] += numDelta
+			} else{		// new day
+				task[i].date[day] = todayDate	// day++ auto
+				task[i].delta[day] = numDelta
+			}
+			task[i].sum += numDelta
+			TaskWrite(i)	// update HTML
+			console.log(task)		// check objects
+			populateStorage()
+		}
+	})
+	
+	document.getElementsByClassName('task-sum')[i].addEventListener('click', function(){
+		day = task[i].delta.length
+		todayDate = new Date().toDateString()
+		
+		let addSum = prompt("输入任务 " + task[i].name + " 的总进度")
+		let numSum = parseInt(addSum, 10)
+		if(addSum != null && addSum !=""){
+			if(todayDate == task[i].date[day - 1]){		// same day
+				task[i].delta[day - 1] += numSum - task[i].sum
+			} else{		// new day
+				task[i].date[day] = todayDate
+				task[i].delta[day] = numSum - task[i].sum
+			}
+			task[i].sum = numSum
+			TaskWrite(i)
+			console.log(task)
+			populateStorage()
+		}
+	})
+	
+	document.getElementsByClassName('task-detail')[i].addEventListener('click', function(){
+		
+	})
+	
 }
 
-// console.log(task[0].delta)
-// console.log(task[0].date)
-
-var taskNum = document.getElementsByClassName('task-item').length
-console.log(document.getElementsByClassName('task-item'))
-console.log(taskNum)
-
-// console.log(newDiv)
+// process and print data, before activate submit btn
+for (let i = 0; i < task.length; i++){
+	createTask()
+	TaskWrite(i)
+	buttonEvent(i)
+}
 
 // button onclick
 function submitTask(){
 	console.log('function submit')
-	var taskname = document.getElementById('taskname').value
-	var totalamount = document.getElementById('totalamount').value
-	var sumamount = document.getElementById('sumamount').value
+	let inputName = document.getElementById('input-name').value
+	let inputTotal = document.getElementById('input-total').value
+	let inputSum = document.getElementById('input-sum').value
+	let numTotal = parseInt(inputTotal, 10)
+	let numSum = parseInt(inputSum, 10)
 	task.push({
-		name: taskname,
-		sum: sumamount,
-		total: totalamount,
+		name: inputName,
+		sum: numSum,
+		total: numTotal,
 		percentage: 0,
 		isCompleted: false,
 		date: [],
-		delta: [sumamount],
+		delta: [numSum],
 		daverage: 0,
 		dcurrent: 0
 	})
+	populateStorage()
 	
-	
-	if(taskname != '' && totalamount!='' && sumamount!=''){
-		//console.log('UNDEFINED')
+	if(inputName != '' && inputTotal != '' && inputSum != ''){
 		createTask()
-		// console.log(taskNum)
-		TaskWrite(taskNum)
-		taskNum = document.getElementsByClassName('task-item').length	//taskNum ++
-		console.log(taskNum)
+		TaskWrite(task.length - 1)
+		buttonEvent(task.length - 1)
 		
-		document.getElementById('taskname').value = ''
-		document.getElementById('totalamount').value = ''
-		document.getElementById('sumamount').value = '0'
-	} 
+		document.getElementById('input-name').value = ''
+		document.getElementById('input-total').value = ''
+		document.getElementById('input-sum').value = 0
+	}
 	else{
-		// var newWarn = document.createElement('p')
-		// var newWarnText = document.createTextNode('!Invaild Warning!')
-		// newWarn.appendChild(newWarnText)
-		
-		// var body = document.getElementById('body')		// parent Node
-		// var mainDiv = document.getElementById('tasks')
-		// body.insertBefore(newWarn,mainDiv)
-		
-		// console.log(newWarn)
-		
 		alert('invalid input')
 	}
 
-	for(let i=0; i<taskNum; i++)
-	{
-		
-		var day = task[i].delta.length
-		var todayDate = new Date().toDateString()
-		
-		var addProgress = document.getElementsByClassName('task-progress-button')[i].addEventListener('click', function(){
-			// console.log('new progress')
-			/*	if(addbool[i])		// add form not loaded
-				{
-					// console.log(true)
-					// create add form for progress
-					var newProgress = document.createElement('form')
-					
-					var subTask = document.getElementsByClassName('task-item')[i]
-						subTask.appendChild(newProgress)
-					var newProText = document.createTextNode('Add')
-						newProgress.appendChild(newProText)
-					
-					// checked radio box
-					var newInputDelta = document.createElement('input')
-					newInputDelta.type = 'radio'
-					newInputDelta.name = 'progress'
-					newInputDelta.checked = true
-					newProgress.appendChild(newInputDelta)
-					
-					var newLabelDelta = document.createElement('label')
-					var newLabelDeltaText = document.createTextNode('新进度')
-					newLabelDelta.appendChild(newLabelDeltaText)
-					newProgress.appendChild(newLabelDelta)
-					
-					var newInputSum = document.createElement('input')
-					newInputSum.type = 'radio'
-					newInputSum.name = 'progress'	// only if radio has the same name,互斥
-					newInputSum.checked = false
-					newProgress.appendChild(newInputSum)
-					
-					var newLabelSum = document.createElement('label')
-					var newLabelSumText = document.createTextNode('总进度')
-					newLabelSum.appendChild(newLabelSumText)
-					newProgress.appendChild(newLabelSum)
-					
-					// text input box
-					var newInput = document.createElement('input')
-					newInput.type = "text"
-					newInput.placeholder = "Input"
-					newProgress.appendChild(newInput)
-					
-					// button
-					var newSubmit = document.createElement('input')
-					newSubmit.type = "button"
-					newSubmit.value = "submit"
-					newSubmit.onclick = "addProgress()"
-					newProgress.appendChild(newSubmit)
-					
-					// console.log(newProgress)
-					addbool[i] = false
-				}   */
-			// task[0].date[1] = new Date().toDateString()
-			
-			
-			var addDelta = prompt("输入任务 " + task[i].name + " 的新进度")
-			var numAdded = parseInt(addDelta, 10)		// char into ints
-			if(addDelta != null && addDelta != ""){
-				// console.log(addDelta)
-				
-				// add progress
-				if(todayDate == task[i].date[day-1]){	// same day
-					task[i].delta[day-1] += numAdded
-				} else{
-					task[i].date[day] = todayDate
-					task[i].delta[day] += numAdded
-				}
-				task[i].sum += numAdded
-				TaskWrite(i)
-				console.log(task)
-			}
-		})
-		
-		var addSum = document.getElementsByClassName('task-overall-button')[i].addEventListener('click', function(){
-			// console.log('add sum')
-			var addSumProgress = prompt("输入任务 " + task[i].name + " 的总进度")
-			var numSum = parseInt(addSumProgress, 10)
-			if(addSumProgress != null && addSumProgress !=""){
-				if(todayDate == task[i].date[day-1]){	// same day
-					task[i].delta[day-1] += numSum - task[i].sum
-				} else{		// new day
-					task[i].date[day] = todayDate
-					task[i].delta[day] += numSum - task[i].sum
-				}
-				task[i].sum = numSum
-				TaskWrite(i)
-				console.log(task)
-			}
-		})	
-	}
 }
-

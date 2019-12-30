@@ -16,17 +16,18 @@
 <body id="body">
 	<h2>Tasks</h2>
 	<form>
-		新任务名<input type="text" placeholder="Task name..." id="taskname" required="required"/>
+		新任务名<input type="text" placeholder="Task name..." id="input-name" required="required"/>
 		<br>
-		总任务量<input type="number" placeholder="Total Amount..." id="totalamount" required="required"/>
-		当前进度<input type="number" placeholder="Current..." value="0" id="sumamount" required="required" />
+		总任务量<input type="number" placeholder="Total Amount..." id="input-total" required="required"/>
+		<br>
+		初始进度<input type="number" placeholder="Current..." value="0" id="input-sum" required="required" />
 		<!-- ddl input date -->
 		<br>
 		<input type="button" value="sumbit" onclick="submitTask()"/>
 	</form>
 	<br>
 	
-	<div class="main" id="tasks">
+	<div id="main-task">
 		<!-- <div class="task-item">
 			<span class="task-name">Task 1</span>
 			<input type="button" value="+" /><input type="button" value="···" />
