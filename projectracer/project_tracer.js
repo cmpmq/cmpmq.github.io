@@ -43,7 +43,7 @@ let task = [
 
 let taskStr = JSON.stringify(task)
 // read from localStorage -> task
-if(!localStorage){		// localStorage is empty; write into localStorage
+if(localStorage == undefined){		// localStorage is empty; write into localStorage
 	localStorage.task = taskStr		// write in
 } else {
 	// console.log('read from local storage')
