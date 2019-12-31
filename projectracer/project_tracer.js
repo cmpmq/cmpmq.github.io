@@ -5,6 +5,8 @@ function toPercentage (sum, total){
 	return (Math.round(sum / total * 10000)/100 + "%")
 }
 
+// localStorage.clear()
+
 let task = [
 	{
 		name: 'Chinese articles',
@@ -15,6 +17,7 @@ let task = [
 		date: [,"Sat Dec 27 2019","Sun Dec 28 2019"],
 		delta: [1,2,2],
 		daverage: 0,
+		vaverage: 0,
 		dcurrent: 0
 	},
 	{
@@ -26,6 +29,7 @@ let task = [
 		date: [],
 		delta: [11],
 		daverage: 0,
+		vaverage: 0,
 		dcurrent: 0
 	},
 	{
@@ -37,19 +41,23 @@ let task = [
 		date: [],
 		delta: [0],
 		daverage: 0,
+		vaverage: 0,
 		dcurrent: 0
 	}
 ]
 
-let taskStr = JSON.stringify(task)
+let unfoldHistory = [true, true, true]
 
+	console.log(task)
+
+let taskStr = JSON.stringify(task)
 // read from localStorage -> task
-if(localStorage == undefined){		// localStorage is empty; write into localStorage
+if(localStorage.length == 0){		// localStorage is empty; write into localStorage
 	localStorage.task = taskStr		// write in
 } else {
 	// console.log('read from local storage')
 	task = JSON.parse(localStorage.task)		// read from localStorage
-	console.log(localStorage.task)
+	// console.log(localStorage.task)
 }
 
 function populateStorage(){
@@ -119,16 +127,91 @@ function TaskWrite(i){
 	let taskDays = document.getElementsByClassName('task-day')
 	
 	// objects of arrays && overwrite HTML
-	taskNames[i].textContent = task[i].name
+	taskNames[i].textContent = task[i].name + " "
 	task[i].percentage = toPercentage(task[i].sum, task[i].total)
 	progresses[i].textContent = `${task[i].sum} / ${task[i].total}; ${task[i].percentage}`
 	let day = task[i].delta.length
-	let aspeed = (task[i].sum - task[i].delta[0]) / (day - 1)
-	task[i].daverage = Math.round((task[i].total - task[i].sum) / aspeed)
+	task[i].vaverage = (task[i].sum - task[i].delta[0]) / (day - 1)
+	task[i].daverage = Math.round((task[i].total - task[i].sum) / task[i].vaverage)
 	
 	let cspeed = task[i].delta[day - 1]
 	task[i].dcurrent = Math.round((task[i].total - task[i].sum) / cspeed)
 	taskDays[i].textContent = task[i].daverage + " 平均; " + task[i].dcurrent + " 当前"
+}
+
+function taskHistory(i){
+	let newTable = document.createElement('table')
+	newTable.border = 1
+	newTable.className = "history"
+	let taskBox = document.getElementsByClassName('task')[i]
+	taskBox.appendChild(newTable)
+	
+	let newthead = document.createElement('thead')
+	newTable.appendChild(newthead)
+	
+	let newtr = document.createElement('tr')
+	newthead.appendChild(newtr)
+	
+	let newth = document.createElement('th')
+	newtr.appendChild(newth)
+	let newText = document.createTextNode('Date')
+	newth.appendChild(newText)
+	newth = document.createElement('th')
+	newtr.appendChild(newth)
+	newText = document.createTextNode('Progress')
+	newth.appendChild(newText)
+	
+	newtr = document.createElement('tr')
+	newthead.appendChild(newtr)
+	newth = document.createElement('th')
+	newtr.appendChild(newth)
+	newText = document.createTextNode('初始进度')
+	newth.appendChild(newText)
+	newth = document.createElement('th')
+	newtr.appendChild(newth)
+	newText = document.createTextNode(task[i].delta[0])
+	newth.appendChild(newText)
+	
+	let newtbody = document.createElement('tbody')
+	newTable.appendChild(newtbody)
+	newtr = document.createElement('tr')
+	newtbody.appendChild(newtr)
+	
+	let newtd
+	for(let j = 1; j < task[i].date.length; j++)
+	{
+		newtr = document.createElement('tr')
+		newtbody.appendChild(newtr)
+		newtd = document.createElement('td')
+		newtr.appendChild(newtd)
+		newText = document.createTextNode(task[i].date[j])
+		newtd.appendChild(newText)
+		newtd = document.createElement('td')
+		newtr.appendChild(newtd)
+		newText = document.createTextNode(task[i].delta[j])
+		newtd.appendChild(newText)
+	}
+	
+	let newtfoot = document.createElement('tfoot')
+	newTable.appendChild(newtfoot)
+	newtr = document.createElement('tr')
+	newtfoot.appendChild(newtr)
+	newth = document.createElement('th')
+	newtr.appendChild(newth)
+	newText = document.createTextNode('Average')
+	newth.appendChild(newText)
+	
+	newth = document.createElement('th')
+	newtr.appendChild(newth)
+	newText = document.createTextNode(Math.round(task[i].vaverage))
+	newth.appendChild(newText)
+	
+}
+
+function removeHistory(i){
+	let parent = document.getElementsByClassName('task')[i]
+	let child = parent.lastChild
+	parent.removeChild(child)
 }
 
 function buttonEvent(i){
@@ -155,6 +238,11 @@ function buttonEvent(i){
 			TaskWrite(i)	// update HTML
 			console.log(task)		// check objects
 			populateStorage()
+			
+			if(unfoldHistory){
+				removeHistory(i)
+				taskHistory(i)
+			}
 		}
 	})
 	
@@ -175,10 +263,24 @@ function buttonEvent(i){
 			TaskWrite(i)
 			console.log(task)
 			populateStorage()
+			
+			if(unfoldHistory){
+				removeHistory(i)
+				taskHistory(i)
+			}
 		}
 	})
 	
 	document.getElementsByClassName('task-detail')[i].addEventListener('click', function(){
+		if(unfoldHistory[i])
+		{
+			// console.log('history is unfolded')
+			taskHistory(i)
+			unfoldHistory[i] = false
+		} else {
+			removeHistory(i)
+			unfoldHistory[i] = true
+		}
 		
 	})
 	
@@ -199,6 +301,7 @@ function submitTask(){
 	let inputSum = document.getElementById('input-sum').value
 	let numTotal = parseInt(inputTotal, 10)
 	let numSum = parseInt(inputSum, 10)
+	unfoldHistory[task.length] = true
 	task.push({
 		name: inputName,
 		sum: numSum,
@@ -208,6 +311,7 @@ function submitTask(){
 		date: [],
 		delta: [numSum],
 		daverage: 0,
+		vaverage: 0,
 		dcurrent: 0
 	})
 	populateStorage()
@@ -226,3 +330,6 @@ function submitTask(){
 	}
 
 }
+
+
+
