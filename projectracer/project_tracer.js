@@ -42,6 +42,7 @@ let task = [
 ]
 
 let taskStr = JSON.stringify(task)
+debugger
 // read from localStorage -> task
 if(localStorage == undefined){		// localStorage is empty; write into localStorage
 	localStorage.task = taskStr		// write in
