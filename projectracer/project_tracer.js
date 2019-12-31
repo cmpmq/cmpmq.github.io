@@ -239,7 +239,7 @@ function buttonEvent(i){
 			console.log(task)		// check objects
 			populateStorage()
 			
-			if(unfoldHistory){
+			if(!unfoldHistory){
 				removeHistory(i)
 				taskHistory(i)
 			}
@@ -264,7 +264,7 @@ function buttonEvent(i){
 			console.log(task)
 			populateStorage()
 			
-			if(unfoldHistory){
+			if(!unfoldHistory){
 				removeHistory(i)
 				taskHistory(i)
 			}
@@ -330,6 +330,3 @@ function submitTask(){
 	}
 
 }
-
-
-
