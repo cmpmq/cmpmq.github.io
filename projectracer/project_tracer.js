@@ -5,11 +5,9 @@ function toPercentage (sum, total){
 	return (Math.round(sum / total * 10000)/100 + "%")
 }
 
-// localStorage.clear()
-
 let task = [
 	{
-		name: 'Chinese articles',
+		name: '古文观止',
 		sum: 5,
 		total: 222,
 		percentage: 0,
@@ -21,7 +19,7 @@ let task = [
 		dcurrent: 0
 	},
 	{
-		name: 'Maths Examples',
+		name: '数学例题',
 		sum: 11,
 		total: 180,
 		percentage: 0,
@@ -33,7 +31,7 @@ let task = [
 		dcurrent: 0
 	},
 	{
-		name: 'Maths Exercises',
+		name: '数学习题',
 		sum: 0,
 		total: 260,
 		percentage: 0,
@@ -47,8 +45,6 @@ let task = [
 ]
 
 let unfoldHistory = [true, true, true]
-
-	console.log(task)
 
 let taskStr = JSON.stringify(task)
 // read from localStorage -> task
@@ -96,7 +92,7 @@ function createTask(){
 	
 	newInput = document.createElement('input')
 	newInput.type = 'button'
-	newInput.value = '···'
+	newInput.value = '历史记录'
 	newInput.className = 'task-detail'
 	newDiv.appendChild(newInput)
 	
@@ -154,11 +150,11 @@ function taskHistory(i){
 	
 	let newth = document.createElement('th')
 	newtr.appendChild(newth)
-	let newText = document.createTextNode('Date')
+	let newText = document.createTextNode('日期')
 	newth.appendChild(newText)
 	newth = document.createElement('th')
 	newtr.appendChild(newth)
-	newText = document.createTextNode('Progress')
+	newText = document.createTextNode('当日进度')
 	newth.appendChild(newText)
 	
 	newtr = document.createElement('tr')
@@ -198,7 +194,7 @@ function taskHistory(i){
 	newtfoot.appendChild(newtr)
 	newth = document.createElement('th')
 	newtr.appendChild(newth)
-	newText = document.createTextNode('Average')
+	newText = document.createTextNode('平均进度')
 	newth.appendChild(newText)
 	
 	newth = document.createElement('th')
@@ -239,7 +235,7 @@ function buttonEvent(i){
 			console.log(task)		// check objects
 			populateStorage()
 			
-			if(!unfoldHistory){
+			if(!unfoldHistory[i]){	// fresh history
 				removeHistory(i)
 				taskHistory(i)
 			}
@@ -264,7 +260,7 @@ function buttonEvent(i){
 			console.log(task)
 			populateStorage()
 			
-			if(!unfoldHistory){
+			if(!unfoldHistory[i]){
 				removeHistory(i)
 				taskHistory(i)
 			}
@@ -279,9 +275,8 @@ function buttonEvent(i){
 			unfoldHistory[i] = false
 		} else {
 			removeHistory(i)
-			unfoldHistory[i] = true
+			unfoldHistory[i] = true		// history not shown / unfolded
 		}
-		
 	})
 	
 }
@@ -293,40 +288,51 @@ for (let i = 0; i < task.length; i++){
 	buttonEvent(i)
 }
 
-// button onclick
-function submitTask(){
+document.getElementById('submitTask').addEventListener('click',function(){
 	console.log('function submit')
 	let inputName = document.getElementById('input-name').value
 	let inputTotal = document.getElementById('input-total').value
 	let inputSum = document.getElementById('input-sum').value
 	let numTotal = parseInt(inputTotal, 10)
 	let numSum = parseInt(inputSum, 10)
-	unfoldHistory[task.length] = true
-	task.push({
-		name: inputName,
-		sum: numSum,
-		total: numTotal,
-		percentage: 0,
-		isCompleted: false,
-		date: [],
-		delta: [numSum],
-		daverage: 0,
-		vaverage: 0,
-		dcurrent: 0
-	})
-	populateStorage()
 	
 	if(inputName != '' && inputTotal != '' && inputSum != ''){
+		unfoldHistory[task.length] = true
+		task.push({
+			name: inputName,
+			sum: numSum,
+			total: numTotal,
+			percentage: 0,
+			isCompleted: false,
+			date: [],
+			delta: [numSum],
+			daverage: 0,
+			vaverage: 0,
+			dcurrent: 0
+		})		// task.length++
+		console.log(task)
+		populateStorage()
+		
 		createTask()
 		TaskWrite(task.length - 1)
 		buttonEvent(task.length - 1)
 		
 		document.getElementById('input-name').value = ''
 		document.getElementById('input-total').value = ''
-		document.getElementById('input-sum').value = 0
+		document.getElementById('input-sum').value = ''
 	}
 	else{
-		alert('invalid input')
+		alert('输入不能为空')
 	}
+	
+})
 
-}
+document.getElementById('clear').addEventListener('click',function(){
+	let doClear = confirm('恢复默认将丢失你的所有进度')
+	if(doClear == true){
+		localStorage.clear()
+		window.location.reload()
+	}	
+})
+
+

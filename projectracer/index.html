@@ -14,16 +14,16 @@
     </script>
 </head>
 <body id="body">
-	<h2>Project Tracer</h2>
+	<h2>项目追踪</h2>
 	<form>
-		新任务名<input type="text" placeholder="Task name..." id="input-name" required="required"/>
+		<span>新任务名</span><input type="text" placeholder="新任务" id="input-name" required="required"/>
 		<br>
-		总任务量<input type="number" placeholder="Total Amount..." id="input-total" required="required"/>
+		<span>总任务量</span><input type="number" placeholder="100" id="input-total" required="required"/>
 		<br>
-		初始进度<input type="number" placeholder="Current..." value="0" id="input-sum" required="required" />
+		<span>初始进度</span><input type="number" placeholder="0" id="input-sum" required="required" />
 		<!-- ddl input date -->
 		<br>
-		<input type="button" value="sumbit" onclick="submitTask()"/>
+		<input type="button" id="submitTask" value="创建任务"/>
 	</form>
 	<br>
 	
@@ -48,6 +48,8 @@
 			</tr>
 		 </table> -->
 	</div>
+	
+	<input type="button" id="clear" value="恢复默认" />
 </body>
 <script src="project_tracer.js"></script>
 </html>
