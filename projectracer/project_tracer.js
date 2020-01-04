@@ -44,24 +44,24 @@ let task = [
 	}
 ]
 
-let unfoldHistory = [true, true, true]
+let temp = {}
+
+let unfoldHistory = [true]
 
 let taskStr = JSON.stringify(task)
 // read from localStorage -> task
 if(localStorage.length == 0){		// localStorage is empty; write into localStorage
 	localStorage.task = taskStr		// write in
 } else {
-	// console.log('read from local storage')
 	task = JSON.parse(localStorage.task)		// read from localStorage
-	// console.log(localStorage.task)
 }
 
 function populateStorage(){
 	taskStr = JSON.stringify(task)		// stringfy
 	localStorage.task = taskStr			// write in
-	// console.log(localStorage.task)
 }
 
+// HTML div-task-box
 function createTask(){
 	let newDiv = document.createElement('div')
 	newDiv.className = "task"
@@ -94,6 +94,18 @@ function createTask(){
 	newInput.type = 'button'
 	newInput.value = '历史记录'
 	newInput.className = 'task-detail'
+	newDiv.appendChild(newInput)
+	
+	newInput = document.createElement('input')
+	newInput.type = 'button'
+	newInput.value = '-'
+	newInput.className = 'task-delete'
+	newDiv.appendChild(newInput)
+	
+	newInput = document.createElement('input')
+	newInput.type = 'button'
+	newInput.value = '↑'
+	newInput.className = 'task-up'
 	newDiv.appendChild(newInput)
 	
 	
@@ -210,6 +222,7 @@ function removeHistory(i){
 	parent.removeChild(child)
 }
 
+
 function buttonEvent(i){
 	let day = task[i].delta.length
 	let todayDate = new Date().toDateString()
@@ -232,7 +245,6 @@ function buttonEvent(i){
 			}
 			task[i].sum += numDelta
 			TaskWrite(i)	// update HTML
-			console.log(task)		// check objects
 			populateStorage()
 			
 			if(!unfoldHistory[i]){	// fresh history
@@ -257,7 +269,6 @@ function buttonEvent(i){
 			}
 			task[i].sum = numSum
 			TaskWrite(i)
-			console.log(task)
 			populateStorage()
 			
 			if(!unfoldHistory[i]){
@@ -279,10 +290,37 @@ function buttonEvent(i){
 		}
 	})
 	
+	document.getElementsByClassName('task-delete')[i].addEventListener('click',function(){
+		// console.log('delete this task' + i)
+		let doDelete = confirm('确认删除这项任务?')
+		if(doDelete == true){
+			task.splice(i,1)
+			populateStorage()
+			window.location.reload()
+		}
+	})
+	
+	document.getElementsByClassName('task-up')[i].addEventListener('click', function(){
+		console.log('task - move up')
+		if(i >= 1){
+			temp = task[i-1]
+			task[i-1] = task[i]
+			task[i] = temp
+			populateStorage()
+			// window.location.reload()
+			TaskWrite(i-1)
+			// buttonEvent(i-1)
+			TaskWrite(i)
+			// buttonEvent(i)
+			console.log(task)
+		}
+	})
+	
 }
 
 // process and print data, before activate submit btn
 for (let i = 0; i < task.length; i++){
+	unfoldHistory[i] = true
 	createTask()
 	TaskWrite(i)
 	buttonEvent(i)
@@ -332,7 +370,8 @@ document.getElementById('clear').addEventListener('click',function(){
 	if(doClear == true){
 		localStorage.clear()
 		window.location.reload()
-	}	
+	}
 })
 
 
+	
